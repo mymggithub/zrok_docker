@@ -7,14 +7,15 @@ if [ -z "$ZROK_TOKEN" ]; then
 fi
 
 echo "Checking for existing enabled environment..."
-if zrok status > /dev/null 2>&1; then
+if zrok status | grep -q "Enabled"; then
   echo "Disabling existing environment..."
-  zrok disable 2>error.log
-  if [ $? -ne 0 ]; then
+  if ! zrok disable 2>error.log; then
     echo "[ERROR]: Failed to disable existing environment. Check error.log for details."
     cat error.log
     exit 1
   fi
+else
+  echo "No existing enabled environment found. Skipping disable step."
 fi
 
 echo "Enabling ZROK_TOKEN..."
