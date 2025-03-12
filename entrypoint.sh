@@ -10,9 +10,16 @@ echo "Checking for existing enabled environment..."
 if zrok status | grep -q "Enabled"; then
   echo "Disabling existing environment..."
   if ! zrok disable 2>error.log; then
-    echo "[ERROR]: Failed to disable existing environment. Check error.log for details."
+    echo "[ERROR]: Failed to disable existing environment. Cleaning up ~/.zrok..."
     cat error.log
-    exit 1
+    # Force cleanup of Zrok state
+    rm -rf /root/.zrok/*
+    # Retry disabling (in case cleanup resolves the issue)
+    if ! zrok disable 2>>error.log; then
+      echo "[ERROR]: Still unable to disable existing environment. Exiting."
+      cat error.log
+      exit 1
+    fi
   fi
 else
   echo "No existing enabled environment found. Skipping disable step."
