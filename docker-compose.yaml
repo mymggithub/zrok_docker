@@ -1,6 +1,7 @@
 services:
   zrok:
     image: kbinghamnetfoundry/zrok:main
+    user: "0:0"  # Run as root (UID 0, GID 0)
     volumes:
       - ~/.zrok:/root/.zrok
       - ./entrypoint.sh:/entrypoint.sh
